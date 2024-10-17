@@ -4,6 +4,9 @@ from sys import exit
 from random import *
 pygame.init()
 
-screen = pygame.display.set_mode((640,480))
+WIDTH, HEIGHT = 800, 600
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+OBSTACLE_COLOR = (255, 0, 0)
 
-def
+def 
