@@ -11,12 +11,17 @@ screen_height = 600
 screen = pygame.display.set_mode((screen_width, screen_height))
 
 # Carregar a imagem de fundo
-background = pygame.image.load('background.png')
-background = pygame.transform.scale(background, (screen_width, screen_height))
+try:
+    background = pygame.image.load('background.jpeg')  # Troque para 'background.png' se necessário
+    background = pygame.transform.scale(background, (screen_width, screen_height))  # Ajusta o tamanho da imagem
+except pygame.error as e:
+    print(f"Erro ao carregar imagem de fundo: {e}")
+    pygame.quit()
+    sys.exit()
 
 # Variáveis para o movimento do fundo
 background_y = 0
-background_speed = -5  # Fundo se move para cima agora
+background_speed = 5  # Fundo vai descer agora
 
 # Define um título para a janela
 pygame.display.set_caption("Tela Principal")
@@ -45,27 +50,41 @@ player_y = screen_height - 150
 player_speed = 10
 
 # Limites para o movimento do personagem
-left_limit = 50
-right_limit = screen_width - 50 - player_image.get_width()
+left_limit = 165
+right_limit = screen_width - 120 - player_image.get_width()
 
-# Obstáculos
-obstacle_images = [
-    pygame.image.load('obstacle1.png'),
-    pygame.image.load('obstacle2.png'),
-    pygame.image.load('obstacle3.png'),
-    pygame.image.load('obstacle4.png')
-]
-obstacle_values = [10, 20, 30, 40]
+# Imagens dos obstáculos
+obstacle_images = {
+    'lixo': pygame.image.load('lixo.png'),
+    'poça': pygame.image.load('poca.png'),
+    'buraco': pygame.image.load('buraco.png'),
+    'rachadura': pygame.image.load('rachadura.png')
+}
+
+# Tamanho dos obstáculos
+obstacle_size = (50, 50)
+
+# Valores dos obstáculos (efeito da colisão ou desvio)
+obstacle_values = {
+    'lixo': 10,  # Subtrai pontos
+    'poça': 5,   # Subtrai tempo
+    'buraco': 6, # Subtrai pontos
+    'rachadura': 3  # Subtrai pontos
+}
+
+# Lista de obstáculos
 obstacles = []
 
 # Função para criar novos obstáculos
 def create_obstacle():
-    img = choice(obstacle_images)
-    img = pygame.transform.scale(img, (50, 50))
+    # Escolher um tipo aleatório de obstáculo
+    obstacle_type = choice(list(obstacle_images.keys()))
+    img = obstacle_images[obstacle_type]
+    img = pygame.transform.scale(img, obstacle_size)  # Ajustar o tamanho do obstáculo
     x_pos = randint(left_limit, right_limit)
     y_pos = -50  # Começa fora da tela
-    value = obstacle_values[obstacle_images.index(img)]
-    return {'image': img, 'x': x_pos, 'y': y_pos, 'value': value}
+    value = obstacle_values[obstacle_type]
+    return {'type': obstacle_type, 'image': img, 'x': x_pos, 'y': y_pos, 'value': value}
 
 # Função do menu principal
 def menu():
@@ -122,6 +141,9 @@ while True:
     obstacles.clear()
     player_x = screen_width // 2  # Reseta posição do jogador
 
+    # Criação de obstáculos
+    pygame.time.set_timer(pygame.USEREVENT + 2, 1500)  # Cria um novo obstáculo a cada 1.5 segundos
+    
     while temporizador > 0:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -132,9 +154,9 @@ while True:
             if event.type == pygame.USEREVENT + 2:  # Criação periódica de obstáculos
                 obstacles.append(create_obstacle())
 
-        # Movimento do fundo (para cima)
+        # Movimento do fundo (para baixo)
         background_y += background_speed
-        if background_y <= -screen_height:
+        if background_y >= screen_height:
             background_y = 0
 
         # Movimento do personagem com limite de bordas
@@ -151,16 +173,20 @@ while True:
             # Verifica colisão
             player_rect = pygame.Rect(player_x, player_y, player_image.get_width(), player_image.get_height())
             obstacle_rect = pygame.Rect(obstacle['x'], obstacle['y'], obstacle['image'].get_width(), obstacle['image'].get_height())
+            
             if player_rect.colliderect(obstacle_rect):
-                placar -= obstacle['value']  # Subtrai o valor se colidir
+                if obstacle['type'] == 'poça':
+                    temporizador -= 5  # Perde 5 segundos
+                else:
+                    placar -= obstacle['value']  # 
                 obstacles.remove(obstacle)
             elif obstacle['y'] > screen_height:
                 placar += obstacle['value']  # Soma o valor se desviar
                 obstacles.remove(obstacle)
 
         # Desenha o fundo
-        screen.blit(background, (0, background_y))
-        screen.blit(background, (0, background_y + screen_height))
+        screen.blit(background, (0, background_y))  # Desenha fundo na posição Y
+        screen.blit(background, (0, background_y - screen_height))  # Desenha fundo duplicado para criar efeito de movimento
 
         # Desenha o personagem
         screen.blit(player_image, (player_x, player_y))
