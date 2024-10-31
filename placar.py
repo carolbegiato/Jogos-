@@ -14,8 +14,15 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 background = pygame.image.load('background.png')
 background = pygame.transform.scale(background, (screen_width * 2, screen_height))  # Redimensiona a imagem para cobrir o dobro da largura da tela
 
+#Atualizado
+#background = pygame.transform.scale(background, (screen_width, screen_height * 2))
+
 # Variáveis para o movimento do fundo
 background_x = 0
+
+#Atualizado
+#background_y = 0
+
 background_speed = 5
 
 # Define um titulo para a janela
@@ -82,10 +89,19 @@ while True:
     background_x -= background_speed
     if background_x <= -screen_width:
         background_x = 0
-
+        
+    #Atualizado
+    #background_y -= background_speed
+    #if background_y <= -screen_height:
+        #background_y = 0
+    
     # Desenha o fundo
     screen.blit(background, (background_x, 0))
     screen.blit(background, (background_x + screen_width, 0))
+
+    #Atualizado
+    #screen.blit(background, (0, background_y))
+    #screen.blit(background, (0, background_y + screen_height))
 
     # Renderizando as fontes do placar na tela
     score1 = font.render('Placar ' + str(placar), True, WHITE)
