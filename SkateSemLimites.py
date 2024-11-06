@@ -43,7 +43,7 @@ temporizador = 60
 player_image = pygame.image.load('character.png')  # Substitua pelo caminho da imagem do personagem
 player_image = pygame.transform.scale(player_image, (50, 50))  # Redimensiona se necessário
 player_x = screen_width // 2  # Começa no centro horizontal da tela
-player_y = screen_height - 80  # Posiciona próximo à parte inferior da tela
+player_y = screen_height - 50  # Posiciona próximo à parte inferior da tela
 player_speed = 10  # Velocidade de movimento do personagem
 
 # Função do menu principal
@@ -82,7 +82,7 @@ while temporizador > 0:  # O loop roda enquanto o temporizador não acaba
 
     # Movimento do fundo
     background_y -= background_speed
-    if background_y <= -screen_height:
+    if background_y >= -screen_height:
         background_y = 0
 
     # Movimento do personagem com limite de bordas
