@@ -136,20 +136,15 @@ while True:
 
 # Carregar a imagem de fundo
 background = pygame.image.load('background.png')
-#background = pygame.transform.scale(background, (screen_width * 2, screen_height))  # Redimensiona a imagem para cobrir o dobro da largura da tela
-
 #Atualizado
 background = pygame.transform.scale(background, (screen_width, screen_height * 2))
 
 # Variáveis para o movimento do fundo
-#background_x = 0
-
 #Atualizado
 background_y = 0
-
 background_speed = 5
 
-# Define um titulo para a janela
+# Define um título para a janela
 pygame.display.set_caption("Tela Principal")
 
 # Define as cores em RGB
@@ -162,13 +157,20 @@ RED = (255, 0, 0)
 font = pygame.font.SysFont('sans', 40)
 placar = 0
 
-# Variável para contagem de tempo, utilizado para controlar a velocidade de quadros (de atualizações da tela)
+# Variável para contagem de tempo, utilizado para controlar a velocidade de quadros
 clock = pygame.time.Clock()
 
 # Criando objeto Clock
 CLOCKTICK = pygame.USEREVENT + 1
-pygame.time.set_timer(CLOCKTICK, 1000)  # configurado o timer do Pygame para execução a cada 1 segundo
+pygame.time.set_timer(CLOCKTICK, 1000)
 temporizador = 60
+
+# Carrega a imagem do personagem e define sua posição inicial
+player_image = pygame.image.load('character.png')  # Substitua pelo caminho da imagem do personagem
+player_image = pygame.transform.scale(player_image, (50, 50))  # Redimensiona se necessário
+player_x = screen_width // 2  # Começa no centro horizontal da tela
+player_y = screen_height - 100  # Posiciona próximo à parte inferior da tela
+player_speed = 10  # Velocidade de movimento do personagem
 
 # Função do menu principal
 def menu():
@@ -196,60 +198,57 @@ def menu():
 menu()
 
 # Loop principal do jogo
-while True:
-    # Verifica se algum evento aconteceu
+while temporizador > 0:  # O loop roda enquanto o temporizador não acaba
     for event in pygame.event.get():
-        # Verifica se foi um evento de saída (pygame.QUIT), 
-        # em caso afirmativo, fecha a aplicação
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-
-        # Capturando evento de relógio a cada 1 segundo e atualizando a variável contadora
         if event.type == CLOCKTICK:
             temporizador -= 1
 
-    # Atualiza a posição do fundo
-    #background_x -= background_speed
-    #if background_x <= -screen_width:
-        #background_x = 0
-        
+    # Movimento do fundo
     #Atualizado
     background_y -= background_speed
     if background_y <= -screen_height:
         background_y = 0
-    
-    # Desenha o fundo
-    #screen.blit(background, (background_x, 0))
-    #screen.blit(background, (background_x + screen_width, 0))
 
+    # Movimento do personagem com limite de bordas
+    keys = pygame.key.get_pressed()
+    if keys[K_LEFT] and player_x > 0:
+        player_x -= player_speed
+    if keys[K_RIGHT] and player_x < screen_width - player_image.get_width():
+        player_x += player_speed
+
+    # Desenha o fundo
     #Atualizado
     screen.blit(background, (0, background_y))
     screen.blit(background, (0, background_y + screen_height))
 
-    # Renderizando as fontes do placar na tela
+    # Desenha o personagem
+    screen.blit(player_image, (player_x, player_y))
+
+    # Renderizando as fontes do placar e do cronômetro na tela
     score1 = font.render('Placar ' + str(placar), True, WHITE)
     screen.blit(score1, (600, 50))
 
-    # Renderizando as fontes do cronômetro na tela do usuário
     timer1 = font.render('Tempo ' + str(temporizador), True, YELLOW)
     screen.blit(timer1, (50, 50))
 
     # Atualiza a tela visível ao usuário
     pygame.display.flip()
 
-    # Limita a taxa de quadros (framerate) a 60 quadros por segundo (60fps)
+    # Limita a taxa de quadros a 60 fps
     clock.tick(60)
 
-# Final de jogo
+# Final de jogo - Exibe a mensagem final após o fim do temporizador
+screen.fill(BLACK)
 textofinal = font.render('Fim de Jogo - Placar final: ' + str(placar), True, RED)
-size = font.size(str(textofinal))
-screen.blit(textofinal, (size[0] / 2., size[1] / 2.))
+screen.blit(textofinal, (screen_width / 2 - textofinal.get_width() / 2, screen_height / 2 - textofinal.get_height() / 2))
 
-# Atualizamos a tela com uma nova tela de informação final ao jogador
+# Atualiza a tela com a mensagem final
 pygame.display.flip()
 
-# Pequeno loop game esperando o usuário encerrar
+# Pequeno loop para aguardar o encerramento
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
