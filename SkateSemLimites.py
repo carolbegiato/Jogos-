@@ -12,11 +12,11 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 
 # Carregar a imagem de fundo
 background = pygame.image.load('background.png')
-background = pygame.transform.scale(background, (screen_width, screen_height * 2))
+background = pygame.transform.scale(background, (screen_width, screen_height))
 
 # Variáveis para o movimento do fundo
-background_y = 0
-background_speed = 5
+background_y = 0  # Começa na posição Y do topo
+background_speed = 5  # Velocidade de movimento do fundo
 
 # Define um título para a janela
 pygame.display.set_caption("Tela Principal")
@@ -80,10 +80,10 @@ while temporizador > 0:  # O loop roda enquanto o temporizador não acaba
         if event.type == CLOCKTICK:
             temporizador -= 1
 
-    # Movimento do fundo
+    # Movimento do fundo (rotação para baixo)
     background_y += background_speed
-    if background_y >= -screen_height:
-        background_y = 0
+    if background_y >= screen_height:  # Quando o fundo atingir o fim da tela
+        background_y = 0  # Reseta a posição do fundo para o topo
 
     # Movimento do personagem com limite de bordas
     keys = pygame.key.get_pressed()
@@ -92,18 +92,18 @@ while temporizador > 0:  # O loop roda enquanto o temporizador não acaba
     if keys[K_RIGHT] and player_x < screen_width - player_image.get_width():
         player_x += player_speed
 
-    # Desenha o fundo
-    screen.blit(background, (0, background_y))
-    screen.blit(background, (0, background_y + screen_height))
+    # Desenha o fundo (rolagem contínua)
+    screen.blit(background, (0, background_y))  # Desenha o fundo em sua posição atual
+    screen.blit(background, (0, background_y - screen_height))  # Desenha uma segunda parte do fundo acima
 
     # Desenha o personagem
     screen.blit(player_image, (player_x, player_y))
 
     # Renderizando as fontes do placar e do cronômetro na tela
-    score1 = font.render('Placar ' + str(placar), True, WHITE)
+    score1 = font.render('Placar: ' + str(placar), True, WHITE)
     screen.blit(score1, (600, 50))
 
-    timer1 = font.render('Tempo ' + str(temporizador), True, YELLOW)
+    timer1 = font.render('Tempo: ' + str(temporizador), True, YELLOW)
     screen.blit(timer1, (50, 50))
 
     # Atualiza a tela visível ao usuário
